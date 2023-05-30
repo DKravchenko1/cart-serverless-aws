@@ -8,21 +8,20 @@ let server;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.use(helmet());
+  app.enableCors({
+    origin: '*',
+    credentials: true,
+    methods: '*',
+    allowedHeaders: '*',
+  });
+
   await app.init();
 
-  app.enableCors({
-    origin: (req, callback) => {
-      console.log('request', req);
-      return callback(null, true);
-    },
-  });
-  app.use(helmet());
-
   const expressApp = app.getHttpAdapter().getInstance();
-  return serverlessExpress({ app: expressApp })
+  return serverlessExpress({ app: expressApp });
 }
-
-bootstrap().then(() => console.log('app started'));
 
 export const handler: Handler = async (
   event: any,

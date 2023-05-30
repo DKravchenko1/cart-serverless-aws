@@ -1,39 +1,38 @@
 import { Injectable } from '@nestjs/common';
 import { v4 } from 'uuid';
 
-import { Order } from '../models';
+import { Order } from '../order.types';
+import { InjectModel } from '@nestjs/sequelize';
+import { OrderModel } from '../order.model';
+import { Sequelize } from 'sequelize-typescript';
+import { Transaction } from 'sequelize';
 
 @Injectable()
 export class OrderService {
-  private orders: Record<string, Order> = {}
+  constructor(
+    @InjectModel(OrderModel) private readonly orderModel: typeof OrderModel,
+    private readonly sequelize: Sequelize,
+  ) {}
 
-  findById(orderId: string): Order {
-    return this.orders[ orderId ];
+  async findById(orderId: string, t?: Transaction): Promise<Order> {
+    const transaction = t ? t : await this.sequelize.transaction();
+    return await this.orderModel.getItemById(orderId, transaction);
   }
 
-  create(data: any) {
-    const id = v4(v4())
+  async create(data: any, t?: Transaction) {
+    const transaction = t ? t : await this.sequelize.transaction();
+    const id = v4();
     const order = {
       ...data,
       id,
-      status: 'inProgress',
+      status: 'ORDERED',
     };
 
-    this.orders[ id ] = order;
-
-    return order;
+    return await this.orderModel.createItem(order, transaction);
   }
 
-  update(orderId, data) {
-    const order = this.findById(orderId);
-
-    if (!order) {
-      throw new Error('Order does not exist.');
-    }
-
-    this.orders[ orderId ] = {
-      ...data,
-      id: orderId,
-    }
+  async update(orderId, data, t: Transaction) {
+    const transaction = t ? t : await this.sequelize.transaction();
+    return await this.orderModel.updateItemById(orderId, data, transaction);
   }
 }

@@ -9,17 +9,11 @@ provider:
 
 plugins:
   - serverless-offline
-  - serverless-webpack
-
-custom:
-  webpack:
-    webpackConfig: "./webpack.config.js"
-    includeModules: true
-    keepOutputDirectory: true
+  - serverless-dotenv-plugin
 
 functions:
   CartLambda:
-    handler: src/main.handler
+    handler: dist/main.handler
     events:
       - http:
           method: ANY
