@@ -1,24 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../users/services/users.service';
-import { User } from '../users/models';
-import { contentSecurityPolicy } from 'helmet';
+import { UsersService } from '../users';
+import { User } from '../users/interfaces';
+import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private readonly sequelize: Sequelize,
   ) {}
 
-  validateUser(name: string, password: string): any {
-    const user = this.usersService.findOne(name);
-
-    if (user) {
-      return user;
+  async validateUser(name: string, password: string): Promise<any> {
+    console.log('validateUser', name, password);
+    const transaction = await this.sequelize.transaction();
+    try {
+      const user = await this.usersService.findOneByUserName(name, transaction);
+      const result = user
+        ? user
+        : await this.usersService.createOne({ name, password }, transaction);
+      await transaction.commit();
+      return result;
+    } catch (err) {
+      await transaction.rollback();
+      console.log(err);
     }
-
-    return this.usersService.createOne({ name, password })
   }
 
   login(user: User, type) {
@@ -26,8 +33,8 @@ export class AuthService {
       jwt: this.loginJWT,
       basic: this.loginBasic,
       default: this.loginJWT,
-    }
-    const login = LOGIN_MAP[ type ]
+    };
+    const login = LOGIN_MAP[type];
 
     return login ? login(user) : LOGIN_MAP.default(user);
   }
@@ -42,11 +49,11 @@ export class AuthService {
   }
 
   loginBasic(user: User) {
-    // const payload = { username: user.name, sub: user.id };
     console.log(user);
 
     function encodeUserToken(user) {
       const { id, name, password } = user;
+      console.log('user', id, name, password);
       const buf = Buffer.from([name, password].join(':'), 'utf8');
 
       return buf.toString('base64');
@@ -57,7 +64,4 @@ export class AuthService {
       access_token: encodeUserToken(user),
     };
   }
-
-
-
 }
