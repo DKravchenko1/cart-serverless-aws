@@ -6,7 +6,7 @@ import { AppModule } from './app.module';
 
 let server;
 
-// const port = process.env.PORT || 4000;
+const port = process.env.PORT || 4000;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -20,10 +20,10 @@ async function bootstrap() {
   });
 
   await app.init();
-  // await app.listen(port);
+  await app.listen(port);
 
-  const expressApp = app.getHttpAdapter().getInstance();
-  return serverlessExpress({ app: expressApp });
+  // const expressApp = app.getHttpAdapter().getInstance();
+  // return serverlessExpress({ app: expressApp });
 }
 
 bootstrap().then(() => {
