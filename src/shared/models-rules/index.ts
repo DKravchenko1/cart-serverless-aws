@@ -5,5 +5,5 @@ import { AppRequest } from '../interfaces';
  * @returns {string}
  */
 export function getUserIdFromRequest(request: AppRequest): string {
-  return (request.user && request.user?.dataValues.id) || '';
+  return (request.user && request.user?.id) || '';
 }
