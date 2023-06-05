@@ -43,7 +43,7 @@ export class UsersService {
         transaction,
       });
       await commit();
-      return result;
+      return result.get();
     } catch (e) {
       await rollback();
       console.log('error', e);

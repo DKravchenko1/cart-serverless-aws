@@ -53,22 +53,26 @@ export class CartService {
       const userCart = await this.findByUserId(userId, transaction);
       const result = userCart ? userCart : await this.createByUserId(userId);
       console.log('userId', userId);
-      await transaction.commit();
+      if (!t) {
+        await transaction.commit();
+      }
       return result;
     } catch (e) {
       console.log('error', e);
-      await transaction.rollback();
+      if (!t) {
+        await transaction.rollback();
+      }
     }
   }
 
   async updateByUserId(userId: string, { items }: CartType): Promise<CartType> {
     const transaction = await this.sequelize.transaction();
     try {
-      const { dataValues } = (await this.findOrCreateByUserId(
+      const user = (await this.findOrCreateByUserId(
         userId,
         transaction,
       )) as any;
-      const { id, status, items: currentItems = [] } = dataValues;
+      const { id, status, items: currentItems = [] } = user.get();
       console.log('items ->', items);
 
       const newItems = [
