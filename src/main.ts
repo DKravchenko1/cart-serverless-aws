@@ -1,12 +1,11 @@
 import { NestFactory } from '@nestjs/core';
-import serverlessExpress from '@vendia/serverless-express';
 import helmet from 'helmet';
 import { Callback, Context, Handler } from 'aws-lambda';
 import { AppModule } from './app.module';
 
 let server;
 
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 5000;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -30,6 +29,7 @@ bootstrap().then(() => {
   console.log('Server started!');
   console.log('Docker');
   console.log('host', process.env.DATA_BASE_HOST);
+  console.log('port', process.env.PORT);
 });
 
 export const handler: Handler = async (
