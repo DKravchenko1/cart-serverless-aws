@@ -17,7 +17,7 @@ import { AppRequest, getUserIdFromRequest } from '../shared';
 import { CartService } from './cart.service';
 import { Sequelize } from 'sequelize-typescript';
 
-@Controller('api/profile/cart')
+@Controller('cart/api/profile/cart')
 export class CartController {
   constructor(
     private cartService: CartService,

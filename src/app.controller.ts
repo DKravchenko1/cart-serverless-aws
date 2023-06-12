@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { LocalAuthGuard, AuthService, BasicAuthGuard } from './auth';
 
-@Controller()
+@Controller('cart')
 export class AppController {
   constructor(private authService: AuthService) {}
 
